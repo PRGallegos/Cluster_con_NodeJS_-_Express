@@ -1,23 +1,22 @@
+const express = require("express");
 const cluster = require("cluster");
 const totalCPUs = require("os").cpus().length;
-const express = require("express");
 const port = 3000;
 const limit = 5000000000;
 
 if (cluster.isMaster) {
     console.log(`Number of CPUs: ${totalCPUs}`);
-    console.log(`Master ${process.pid} is running`);
-
     for (let i = 0; i < totalCPUs; i++) {
         cluster.fork();
     }
-
     cluster.on("exit", (worker) => {
-        console.log(`Worker ${worker.process.pid} died`);
+        console.log(`Worker ${worker.process.pid} died, forking another...`);
         cluster.fork();
     });
 } else {
     const app = express();
+    console.log(`Worker ${process.pid} started`);
+
     app.get("/", (req, res) => {
         res.send("Hello World!");
     });
@@ -26,7 +25,6 @@ if (cluster.isMaster) {
         let n = parseInt(req.params.n);
         let count = 0;
         if (n > limit) n = limit;
-
         for (let i = 0; i <= n; i++) {
             count += i;
         }
@@ -34,6 +32,6 @@ if (cluster.isMaster) {
     });
 
     app.listen(port, () => {
-        console.log(`Worker ${process.pid} running on port ${port}`);
+        console.log(`App listening on port ${port}`);
     });
 }

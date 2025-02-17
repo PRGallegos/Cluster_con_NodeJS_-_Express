@@ -9,6 +9,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
     apt-get install -y nodejs npm
-    npm install -g pm2 loadtest express
+    npm install -g pm2 loadtest
   SHELL
 end
